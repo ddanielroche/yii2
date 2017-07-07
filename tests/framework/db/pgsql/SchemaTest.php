@@ -219,4 +219,24 @@ class SchemaTest extends \yiiunit\framework\db\SchemaTest
         $tableSchema = $db->schema->getTableSchema('test_timestamp_default_null');
         $this->assertNull($tableSchema->getColumn('timestamp')->defaultValue);
     }
+
+    /**
+     * https://github.com/yiisoft/yii2/issues/14408
+     */
+    public function testPrimarykey()
+    {
+        $db = $this->getConnection(false);
+
+        $db->createCommand()->insert('profile', [
+            'id' => 3,
+            'description' => 'Profile with primary key',
+        ])->execute();
+
+        // TODO If the sequence is not reset, yii\db\IntegrityException is thrown
+        //$db->createCommand()->resetSequence('profile')->execute();
+
+        $db->createCommand()->insert('profile', [
+            'description' => 'Profile without primary key',
+        ])->execute();
+    }
 }
